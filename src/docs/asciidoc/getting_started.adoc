@@ -1,9 +1,15 @@
-== Getting started
+[reftext="Getting started"]
+== Vavr 入門
 
 Projects that include Vavr need to target Java 1.8 at minimum.
 
+Vavr を使用するプロジェクトのコンパイルバージョンは、最低でも Java 1.8 にしなければなりません。
+
 The .jar is available at http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.vavr%22%20a%3A%22vavr%22[Maven Central].
 
+Vavr の jar ファイルは http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.vavr%22%20a%3A%22vavr%22[Maven Central] で公開されています。
+
+[reftext="Gradle"]
 === Gradle
 
 [source,groovy]
@@ -14,6 +20,7 @@ dependencies {
 }
 ----
 
+[reftext="Maven"]
 === Maven
 
 [source,xml]
@@ -27,17 +34,26 @@ dependencies {
 </dependencies>
 ----
 
-=== Standalone
+[reftext="Standalone"]
+=== スタンドアローン
 
 Because Vavr does __not__ depend on any libraries (other than the JVM) you can easily add it as standalone .jar to your classpath.
 
-=== Snapshots
+Vavr の依存ライブラリは Java の標準ライブラリだけなので、jar ファイルをクラスパスに追加するだけで使い始められるようになっています。
+
+[reftext="Snapshots"]
+=== スナップショット
 
 Developer versions can be found https://oss.sonatype.org/content/repositories/snapshots/io/vavr/vavr[here].
 
+開発中のバージョンは https://oss.sonatype.org/content/repositories/snapshots/io/vavr/vavr[SonartypeのMavenリポジトリ] で公開されています。
+
+[reftext="Gradle"]
 ==== Gradle
 
 Add the additional snapshot repository to your `build.gradle`:
+
+プロジェクトの `build.gradle` へスナップショットリポジトリを追加してください。
 
 [source,groovy]
 ----
@@ -47,9 +63,12 @@ repositories {
 }
 ----
 
+[reftext="Maven"]
 ==== Maven
 
 Ensure that your ``~/.m2/settings.xml`` contains the following:
+
+``~/.m2/settings.xml`` へスナップショットリポジトリを追加してください。
 
 [source,xml]
 ----

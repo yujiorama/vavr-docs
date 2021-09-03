@@ -1,37 +1,65 @@
-== Introduction
+[reftext="Introduction"]
+== 初めに
 
 Vavr (formerly called Javaslang) is a functional library for Java 8+ that provides persistent data types and functional control structures.
 
-=== Functional Data Structures in Java 8 with Vavr
+Vavr（正式名称は Javaslang）は、Java 8 以降の Java に、永続データ構造と関数型の制御構造を導入するライブラリです。
+
+[reftext="Functional Data Structures in Java 8 with Vavr"]
+=== Java 8 と Vavr で関数型データ構造を扱う
 
 Java 8’s https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html[lambdas (λ)] empower us to create wonderful API’s. They incredibly increase the expressiveness of the language.
 
+Java 8 で導入された https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html[ラムダ式（λ式）]は素敵なAPIを作成するのに役立ちます。
+ラムダ式は Java 言語の表現力を劇的に向上してくれました。
+
 http://vavr.io/[Vavr] leveraged lambdas to create various new features based on functional patterns. One of them is a functional collection library that is intended to be a replacement for Java’s standard collections.
+
+http://vavr.io/[Vavr] はラムダ式を活用して、関数型プログラミングのパターンに基づくさまざまな新しい機能を導入します。
+中には Java の標準コレクションを置き換える関数型のコレクションライブラリも含みます。
 
 image::images/vavr-collections.png[Vavr Collections]
 
 __(This is just a bird’s view, you will find a human-readable version below.)__
 
-=== Functional Programming
+__(これは俯瞰的な図ですが、後で人間に読める大きさの文字にした図を紹介します。)__
+
+[reftext="Functional Programming"]
+=== 関数型プログラミング
 
 Before we deep-dive into the details about the data structures I want to talk about some basics. This will make it clear why I created Vavr and specifically new Java collections.
 
-==== Side-Effects
+データ構造の詳細を説明する前に、いくつか基本知識を説明していきます。
+そうすれば、なぜ Vavr を開発したのか、特に Java のコレクションを置き換えることにしたのか理解できるでしょう。
+
+[reftext="Side-Effects"]
+==== 副作用
 
 Java applications are typically plentiful of https://en.wikipedia.org/wiki/Side_effect_(computer_science)[side-effects]. They mutate some sort of state, maybe the outer world. Common side effects are changing objects or variables __in place__, printing to the console, writing to a log file or to a database. Side-effects are considered __harmful__ if they affect the semantics of our program in an undesirable way.
 
+普通なら、Java アプリケーションにはさまざまな https://en.wikipedia.org/wiki/Side_effect_(computer_science)[副作用] があるものです。
+内部状態だけでなく、外界を変化させる場合もあります。
+一般的に副作用と言えば、__その場の__オブジェクトや変数を変化させることや、コンソールへ文字を出力すること、ログファイルやデータベースへデータを書き込むことが挙げられます。
+プログラムの意図しない方法で、想定するセマンティクスに影響を与えることから、副作用は__有害なもの__だと考えられています。
+
 For example, if a function throws an exception and this exception is __interpreted__, it is considered as side-effect that __affects our program__. Furthermore http://c2.com/cgi/wiki?DontUseExceptionsForFlowControl[exceptions are like non-local goto-statements]. They break the normal control-flow. However, real-world applications do perform side-effects.
+
+例えば、ある関数が__スレッドへの割り込み__により例外を送出した場合、それは__プログラムに影響を与える__副作用だと考えられます。
+また、 http://c2.com/cgi/wiki?DontUseExceptionsForFlowControl[例外は大域的なGOTO文（みたいなもの）]で、正常な制御フローを中断させてしまいます。
+しかし、実世界のアプリケーションはそのような副作用を活用しているのです。
 
 [source,java]
 ----
 int divide(int dividend, int divisor) {
-    // throws if divisor is zero
+    // divisor が 0 のとき例外を送出します
     return dividend / divisor;
 }
 
 ----
 
 In a functional setting we are in the favorable situation to encapsulate the side-effect in a Try:
+
+関数型のプログラミングスタイルは、副作用を Try にカプセル化することを推奨します。
 
 [source,java]
 ----
@@ -44,23 +72,36 @@ Try<Integer> divide(Integer dividend, Integer divisor) {
 
 This version of divide does not throw any exception anymore. We made the possible failure explicit by using the type Try.
 
-==== Referential Transparency
+書き直した divide 関数は例外を送出しません。
+潜在的な失敗を、Try 型で明示的に記述できるようになったのです。
+
+[reftext="Referential Transparency"]
+==== 参照透過性
 
 A function, or more generally an expression, is called https://en.wikipedia.org/wiki/Referential_transparency[referentially transparent] if a call can be replaced by its value without affecting the behavior of the program. Simply spoken, given the same input the output is always the same.
 
+プログラムの振る舞いに副作用を与えることなく、その呼び出しを値へ置き換えることができる関数、あるいは、より一般化した式のことを、 https://en.wikipedia.org/wiki/Referential_transparency[参照透過性]がある、と表現します。
+言い換えると、同じ入力を与えると常に同じ結果を返すということです。
+
 [source,java]
 ----
-// not referentially transparent
+// 参照透過性がありません
 Math.random();
 
-// referentially transparent
+// 参照透過性があります
 Math.max(1, 2);
 
 ----
 
 A function is called https://en.wikipedia.org/wiki/Pure_function[pure] if all expressions involved are referentially transparent. An application composed of pure functions will most probably __just work__ if it compiles. We are able to reason about it. Unit tests are easy to write and debugging becomes a relict of the past.
 
-==== Thinking in Values
+参照透過性のある式および関数で構成された関数を https://en.wikipedia.org/wiki/Pure_function[純粋]関数と呼びます。
+純粋関数だけで構成したアプリケーションは、コンパイルができればほとんどの場合__ちゃんと__動作します。
+その理由は推測可能です。
+ユニットテストを簡単に書けるようになり、デバッグ技法は過去の遺物になったことです。
+
+[reftext="Thinking in Values"]
+==== 値について考える
 
 Rich Hickey, the creator of Clojure, gave a great talk about https://www.youtube.com/watch?v=-6BsiVyC1kM[The Value of Values]. The most interesting values are https://en.wikipedia.org/wiki/Immutable_object[immutable] values. The main reason is that immutable values
 
@@ -68,24 +109,50 @@ Rich Hickey, the creator of Clojure, gave a great talk about https://www.youtube
 *   are stable regarding __equals__ and __hashCode__ and thus are reliable hash keys
 *   do not need to be cloned
 *   behave type-safe when used in unchecked covariant casts (Java-specific)
+
+Clojure言語の開発者であるRich Hickeyが、 https://www.youtube.com/watch?v=-6BsiVyC1kM[値の価値]について素晴らしいプレゼンテーションを公開しています。
+最も興味深いのは https://en.wikipedia.org/wiki/Immutable_object[不変]の値（オブジェクト）です。
+不変の値は次のような性質を備えています。
+
+* 本質的にスレッド安全なので、同期が不要
+* __equals__ と __hashCode__ も不変になるので、ハッシュ値（キー）が信頼できる
+* 複製を作らなくてよい
+* Java 特有の、共変型への強制型変換（キャスト）が未チェックでも、型安全に振る舞う
+
 The key to a better Java is to use __immutable values__ paired with __referentially transparent functions__.
+
+より良い Java には__不変の値__と__参照透過な関数__の組み合わせが必要不可欠です。
 
 Vavr provides the necessary http://static.javadoc.io/io.vavr/vavr/0.10.3/io/vavr/control/package-summary.html[controls] and https://static.javadoc.io/io.vavr/vavr/0.10.3/io/vavr/collection/package-summary.html[collections] to accomplish this goal in every-day Java programming.
 
-=== Data Structures in a Nutshell
+Vavr は日々の Java プログラミングでより良い Java を記述するために必要な http://static.javadoc.io/io.vavr/vavr/0.10.3/io/vavr/control/package-summary.html[制御構造] と https://static.javadoc.io/io.vavr/vavr/0.10.3/io/vavr/collection/package-summary.html[コレクション] を提供します。
+
+[reftext="Data Structures in a Nutshell"]
+=== データ構造入門
 
 Vavr’s collection library comprises of a rich set of functional data structures built on top of lambdas. The only interface they share with Java’s original collections is Iterable. The main reason is that the mutator methods of Java’s collection interfaces do not return an object of the underlying collection type.
 
+Vavr のコレクションライブラリは、ラムダ式を活用したさまざまな関数型のデータ構造を提供します。
+Java の標準コレクションの中でも、Iterable インターフェイスだけは共有しています。
+なぜなら、標準コレクションのインターフェイスに含まれる「状態や値を変更するメソッド（mutator method）」は、コレクションに格納しているデータ型のオブジェクトを返さないからです。
+
 We will see why this is so essential by taking a look at the different types of data structures.
 
-==== Mutable Data Structures
+いろいろなデータ構造を見ながら、その理由について考えていきましょう。
+
+[reftext="Mutable Data Structures"]
+==== 可変データ構造
 
 Java is an object-oriented programming language. We encapsulate state in objects to achieve data hiding and provide mutator methods to control the state. The https://en.wikipedia.org/wiki/Java_collections_framework[Java collections framework (JCF)] is built upon this idea.
+
+Java はオブジェクト指向プログラミング言語です。
+データを隠蔽するために状態をオブジェクトにカプセル化し、状態を制御するために「状態や値を変更するメソッド（mutator method）」を提供します。
+これが、 https://en.wikipedia.org/wiki/Java_collections_framework[Java のコレクションフレームワーク]の元になっている考え方です。
 
 [source,java]
 ----
 interface Collection<E> {
-    // removes all elements from this collection
+    // コレクションから全ての要素を削除する
     void clear();
 }
 
@@ -93,40 +160,78 @@ interface Collection<E> {
 
 Today I comprehend a __void__ return type as a smell. It is evidence that https://en.wikipedia.org/wiki/Side_effect_(computer_science)[side-effects] take place, state is mutated. __Shared__ mutable state is an important source of failure, not only in a concurrent setting.
 
-==== Immutable Data Structures
+今の私は返り値の型が __void__ であることをコードの悪臭として認識するようになりました。
+https://en.wikipedia.org/wiki/Side_effect_(computer_science)[副作用] の存在がその証拠です。
+状態を変更してますよね。
+可変の状態を __共有する__ のは、並行処理の有無に関わらず失敗の元でしかありません。
+
+[reftext="Immutable Data Structures"]
+==== 不変データ構造
 
 https://en.wikipedia.org/wiki/Immutable_object[Immutable] data structures cannot be modified after their creation. In the context of Java they are widely used in the form of collection wrappers.
+
+https://en.wikipedia.org/wiki/Immutable_object[不変]データ構造は、一度作成したら二度と変更できません。
+Java では、それぞれのコレクションに対応する不変コレクションがラッパーとして使われています。
 
 [source,java]
 ----
 List<String> list = Collections.unmodifiableList(otherList);
 
-// Boom!
+// バーン！
 list.add("why not?");
 
 ----
 
 There are various libraries that provide us with similar utility methods. The result is always an unmodifiable view of the specific collection. Typically it will throw at runtime when we call a mutator method.
 
-==== Persistent Data Structures
+さまざまなライブラリが似たようなユーティリティメソッドを提供しています。
+どれも、元のコレクションに対応する変更不可能なビューを返すものです。
+たいていの場合、「状態や値を変更するメソッド（mutator method）」を呼び出すと実行時に例外を送出するようになっています。
+
+[reftext="Persistent Data Structures"]
+==== 永続データ構造
 
 A https://en.wikipedia.org/wiki/Persistent_data_structure[persistent data structure] does preserve the previous version of itself when being modified and is therefore __effectively__ immutable. Fully persistent data structures allow both updates and queries on any version.
 
+https://en.wikipedia.org/wiki/Persistent_data_structure[永続データ構造] は、変更する前の状態を記憶している、__実質的な__ 不変性を備えているデータ構造です。
+完全な永続データ構造なら、状態を変更できるだけでなく、任意の時点の状態を参照できます。
+
 Many operations perform only small changes. Just copying the previous version wouldn’t be efficient. To save time and memory, it is crucial to identify similarities between two versions and share as much data as possible.
+
+大半の操作が行うのは小規模な変更だけです。
+ひとつ前の状態を複製するだけでは不十分です。
+時間とメモリを節約するには、ひとつ前と今の状態の共通点を特定し、できるだけ共通点を共有する必要があります。
 
 This model does not impose any implementation details. Here come functional data structures into play.
 
-=== Functional Data Structures
+このモデルは具体的な実装を強制するものではありません。
+次は関数型データ構造について説明します。
+
+[reftext="Functional Data Structures"]
+=== 関数型データ構造
 
 Also known as https://en.wikipedia.org/wiki/Purely_functional[__purely__ functional data structures], these are __immutable__ and __persistent__. The methods of functional data structures are __referentially transparent__.
 
+https://en.wikipedia.org/wiki/Purely_functional[__純粋__ 関数型データ構造]と呼ばれているデータ構造で、__不変性__ と __永続性__ を備えています。
+関数型データ構造のメソッドは __参照透過__ です。
+
 Vavr features a wide range of the most-commonly used functional data structures. The following examples are explained in-depth.
 
-==== Linked List
+Vavr は一般的に使用されているほとんどの関数型データ構造を提供しています。
+ここでは、具体例で説明していきます。
+
+[reftext="Linked List"]
+==== 連結リスト
 
 One of the most popular and also simplest functional data structures is the https://en.wikipedia.org/wiki/Linked_list[(singly) linked List]. It has a __head__ element and a __tail__ List. A linked List behaves like a Stack which follows the https://en.wikipedia.org/wiki/Stack_(abstract_data_type)[last in, first out (LIFO)] method.
 
+https://en.wikipedia.org/wiki/Linked_list[（単一）連結リスト]は最も単純な関数型データ構造の1つです。
+__先頭（head）__ 要素と __末尾（tail）__ リストで構成されています。
+連結リストは、 https://en.wikipedia.org/wiki/Stack_(abstract_data_type)[後入れ先出し（LIFO: last in, first out）] のメソッドを持つスタックのように振る舞います。
+
 In http://vavr.io/[Vavr] we instantiate a List like this:
+
+Vavr では次のようにリストを生成できます。
 
 [source,java]
 ----
@@ -136,9 +241,14 @@ List<Integer> list1 = List.of(1, 2, 3);
 
 Each of the List elements forms a separate List node. The tail of the last element is Nil, the empty List.
 
+リストのそれぞれの要素は独立したリストのノードです。
+最後の要素の tail は Nil すなわち空リストです。
+
 image::images/list1.png?w=660[List 1]
 
 This enables us to share elements across different versions of the List.
+
+Vavr では同じ要素を複数のリストで共有できます。
 
 [source,java]
 ----
@@ -148,19 +258,43 @@ List<Integer> list2 = list1.tail().prepend(0);
 
 The new head element 0 is __linked__ to the tail of the original List. The original List remains unmodified.
 
+新しい head 要素 0 は元のリストの tail に __連結__ しています。
+元のリストはそのまま残っているのです。
+
 image::images/list2.png?w=660[List 2]
 
 These operations take place in constant time, in other words they are independent of the List size. Most of the other operations take linear time. In Vavr this is expressed by the interface LinearSeq, which we may already know from Scala.
 
+それぞれの操作には、リストの大きさとは関係なく一定の時間（定数時間）がかかります。
+他のほとんどの操作には線形時間がかかります。
+Vavr ではそのような操作を LinearSeq インターフェイスとして表現しています。
+ご存じの通り Scala からの借用です。
+
 If we need data structures that are queryable in constant time, Vavr offers Array and Vector. Both have https://en.wikipedia.org/wiki/Random_access[random access] capabilities.
+
+Vavr において、定数時間でアクセスできるデータ構造が必要なときは、Array か Vector を使います。
+どちらも https://en.wikipedia.org/wiki/Random_access[ランダムアクセス] 機能を備えているからです。
 
 The Array type is backed by a Java array of objects. Insert and remove operations take linear time. Vector is in-between Array and List. It performs well in both areas, random access and modification.
 
+Array 型の実装は Java の配列です。
+追加と削除には線形時間がかかります。
+Vector は Array と List の中間です。
+ランダムアクセスと変更操作のどちらについても、そこそこの性能を示します。
+
 In fact the linked List can also be used to implement a Queue data structure.
 
-==== Queue
+そういえば、連結リストを使うとキューを実装できます。
+
+[reftext="Queue"]
+==== キュー
 
 A very efficient functional Queue can be implemented based on two linked Lists. The __front__ List holds the elements that are __dequeued__, the __rear__ List holds the elements that are __enqueued__. Both operations enqueue and dequeue perform in O(1).
+
+2つの連結リストを使うと、非常に効率のよい関数型のキューを実装できます。
+__前方（front）__ リストは __キューから取り出された（dequeue）__ 要素を保持します。
+__後方（rear）__ リストは __キューに追加された（enqueue）__ 要素を保持します。
+enqueue と dequeue のどちらの操作も実行時間は O(1) です。
 
 [source,java]
 ----
@@ -171,13 +305,21 @@ Queue<Integer> queue = Queue.of(1, 2, 3)
 
 The initial Queue is created of three elements. Two elements are enqueued on the rear List.
 
+このコードでは、3要素のキューを作成し、rear に2つの要素を enqueue しています。
+
 image::images/queue1.png?w=660[Queue 1]
 
 If the front List runs out of elements when dequeueing, the rear List is reversed and becomes the new front List.
 
+dequeue するときに front が一杯になってしまったら、rear を逆順にして新たに front として使用します。
+
 image::images/queue2.png?w=660[Queue 2]
 
 When dequeueing an element we get a pair of the first element and the remaining Queue. It is necessary to return the new version of the Queue because functional data structures are immutable and persistent. The original Queue is not affected.
+
+キューから dequeue すると、先頭要素と後続キューの対が得られます。
+関数型データ構造は不変性と永続性を備えているので、新たなキューを返さなければならないからです。
+元のキューには影響しません。
 
 [source,java]
 ----
@@ -190,6 +332,10 @@ Tuple2<Integer, Queue<Integer>> dequeued =
 
 What happens when the Queue is empty? Then dequeue() will throw a NoSuchElementException. To do it the __functional way__ we would rather expect an optional result.
 
+空のキューに操作するとどうなるでしょうか。
+dequeue は NoSucheElementException をスローするでしょう。
+__関数型プログラミングのやり方__ ではオプショナルを返すことが期待されます。
+
 [source,java]
 ----
 // = Some((1, Queue()))
@@ -200,6 +346,8 @@ Queue.empty().dequeueOption();
 ----
 
 An optional result may be further processed, regardless if it is empty or not.
+
+返り値のオプショナルは空であろうとなかろうと、そのまま処理を継続できます。
 
 [source,java]
 ----
@@ -218,11 +366,18 @@ Option<Queue<Integer>> remaining =
         dequeued.map(Tuple2::_2);
 ----
 
-==== Sorted Set
+[reftext="Sorted Set"]
+==== 順序付きセット
 
 Sorted Sets are data structures that are more frequently used than Queues. We use binary search trees to model them in a functional way. These trees consist of nodes with up to two children and values at each node.
 
+順序付きセットはキューよりよく使われるデータ構造で、関数型データ構造としては2分探索木で実装できます。
+2分探索木は最大2つの子ノードと1つの値を持つノードで構成されています。
+
 We build binary search trees in the presence of an ordering, represented by an element Comparator. All values of the left subtree of any given node are strictly less than the value of the given node. All values of the right subtree are strictly greater.
+
+Vavr ではそれぞれの要素に対応する Comparator に基づく順序付けにより、2分探索木を構築しています。
+あらゆるノードの左部分木の値はそのノードの値より必ず小さくなりますし、右部分木の値はそのノードの値より必ず大きくなります。
 
 [source,java]
 ----
@@ -233,6 +388,10 @@ SortedSet<Integer> xs = TreeSet.of(6, 1, 3, 2, 4, 7, 8);
 image::images/binarytree1.png?w=660[Binary Tree 1]
 
 Searches on such trees run in O(log n) time. We start the search at the root and decide if we found the element. Because of the total ordering of the values we know where to search next, in the left or in the right branch of the current tree.
+
+木の探索にかかる時間は O(log n) です。
+探索は根から開始して、目的の要素が見つかるまで続けます。
+全ての値は順序付けられているので、今のノードから左と右のどちらの部分木を探索するか判断できるのです。
 
 [source,java]
 ----
@@ -246,6 +405,12 @@ SortedSet<Integer> reversed = TreeSet.of(c, 2, 3, 1, 2);
 
 Most tree operations are inherently https://en.wikipedia.org/wiki/Recursion[recursive]. The insert function behaves similarly to the search function. When the end of a search path is reached, a new node is created and the whole path is reconstructed up to the root. Existing child nodes are referenced whenever possible. Hence the insert operation takes O(log n) time and space.
 
+木に関するほとんどの操作は本質的に https://en.wikipedia.org/wiki/Recursion[再帰的]になります。
+挿入は探索と同じように行います。
+探索位置が終端に到達したら新しいノードを作成し、根に向かって木を再構築します。
+できるだけ既存のノードを再利用するようにします。
+挿入は時間と空間のどちらにも O(log n) のコストがかかります。
+
 [source,java]
 ----
 // = TreeSet(1, 2, 3, 4, 5, 6, 7, 8)
@@ -256,16 +421,35 @@ image::images/binarytree2.png?w=660[Binary Tree 2]
 
 In order to maintain the performance characteristics of a binary search tree it needs to be kept balanced. All paths from the root to a leaf need to have roughly the same length.
 
+2分木の性能特性を保証するには、定期的な木の再編成が必要です。
+根から全ての葉に対する距離が、ほぼ等しくなるようにしなければなりません。
+
 In Vavr we implemented a binary search tree based on a https://en.wikipedia.org/wiki/Red%E2%80%93black_tree[Red/Black Tree]. It uses a specific coloring strategy to keep the tree balanced on inserts and deletes. To read more about this topic please refer to the book http://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521663504[Purely Functional Data Structures] by Chris Okasaki.
 
-=== State of the Collections
+Vavr では2分木を https://en.wikipedia.org/wiki/Red%E2%80%93black_tree[赤黒木]に基づいて実装しています。
+木へ挿入したり、削除したりするとき、特定の色戦略で木が均等になるようにします。
+詳細なアルゴリズムに興味があるなら、Chris Okasaki の著書 http://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521663504[Purely Functional Data Structures] を参照してください。
+
+[reftext="State of the Collections"]
+=== 最先端のコレクション
 
 Generally we are observing a convergence of programming languages. Good features make it, other disappear. But Java is different, it is bound forever to be backward compatible. That is a strength but also slows down evolution.
 
+普通のプログラミング言語は、良いところを残してそれ以外を捨てていくものだと考えています。
+しかし Java はそうしませんでした。
+後方互換性を保証することにしたのです。
+プログラミング言語としての信頼性は高まりましたが、進化の速度を遅くさせてしまう決定でした。
+
 Lambda brought Java and Scala closer together, yet they are still so different. Martin Odersky, the creator of Scala, recently mentioned in his https://www.youtube.com/watch?v=NW5h8d_ZyOs[BDSBTB 2015 keynote] the state of the Java 8 collections.
+
+ラムダ式により Java は Scala と遜色ない言語になりましたが、それでも大きく異なる部分は残っています。
+Scala 言語の作者である Martin Odersky は、 https://www.youtube.com/watch?v=NW5h8d_ZyOs[BDSBTB 2015 keynote] で Java 8 の標準コレクションの先進性について言及しています。
 
 He described Java’s Stream as a fancy form of an Iterator. The Java 8 Stream API is an example of a __lifted__ collection. What it does is to __define__ a computation and __link__ it to a specific collection in another explicit step.
 
+Martin Odersky は Java の Stream をとても手の込んだ Iterator だと述べています。
+Java 8 で導入された Stream API は、コレクションを __新しい水準へ引き上げる__ 恰好の例だというのです。
+すなわち、計算という概念を __定義し__ 、任意のコレクションを何らかの処理手続きと __結びつける__ のです。
 
 [source,java]
 ----
@@ -276,6 +460,8 @@ i.prepareForAddition()
 ----
 
 This is how the new Java 8 Stream API works. It is a computational layer above the well known Java collections.
+
+Java 8 の Stream API は、既存のコレクションへ計算レイヤーを追加するものだったのです。
 
 [source,java]
 ----
@@ -288,6 +474,9 @@ Arrays.asList(1, 2, 3)
 
 Vavr is greatly inspired by Scala. This is how the above example should have been in Java 8.
 
+Vavr の設計は Scala 言語から多くの発想を得ています。
+ですので、Vavr では前のコード例を次のように記述できるようにします。
+
 [source,java]
 ----
 // = Stream("1", "2", "3") in Vavr
@@ -296,13 +485,22 @@ Stream.of(1, 2, 3).map(Object::toString)
 
 Within the last year we put much effort into implementing the Vavr collection library. It comprises the most widely used collection types.
 
-==== Seq
+昨年はかなりの時間を Vavr のコレクションライブラリの実装に費やしました。
+主に、最も広く使われているコレクション型 Seq が対象です。
+
+[reftext="Seq"]
+==== 並び
 
 We started our journey by implementing sequential types. We already described the linked List above. Stream, a lazy linked List, followed. It allows us to process possibly infinite long sequences of elements.
+
+最初はシーケンシャル型を実装することにしました。
+連結リスト、Stream、遅延連結リストが出来ているので、無限シーケンスを作成できます。
 
 image::images/collections-seq.png?w=660[Seq]
 
 All collections are Iterable and hence could be used in enhanced for-statements.
+
+Vavr の全てのコレクションは Iterable を実装しているので、拡張 for 文で使用できます。
 
 [source,java]
 ----
@@ -313,6 +511,8 @@ for (String s : List.of("Java", "Advent")) {
 
 We could accomplish the same by internalizing the loop and injecting the behavior using a lambda.
 
+内部イテレータとラムダ式で同じ処理を記述できます。
+
 [source,java]
 ----
 List.of("Java", "Advent").forEach(s -> {
@@ -321,6 +521,9 @@ List.of("Java", "Advent").forEach(s -> {
 ----
 
 Anyway, as we previously saw we prefer expressions that return a value over statements that return nothing. By looking at a simple example, soon we will recognize that statements add noise and divide what belongs together.
+
+いずれにしても、私たちは値を返す式のほうが適切であるという考えを説明してきました。
+次のようなコード例を見れば、文が邪魔して理解を妨げているのが分かるでしょう。
 
 [source,java]
 ----
@@ -338,6 +541,9 @@ String join(String... words) {
 
 The Vavr collections provide us with many functions to operate on the underlying elements. This allows us to express things in a very concise way.
 
+Vavr のコレクションは、それぞれの要素に何らかの処理を適用するためのさまざまな関数を提供しています。
+つまり、次のように簡潔に記述できるということです。
+
 [source,java]
 ----
 String join(String... words) {
@@ -350,6 +556,10 @@ String join(String... words) {
 
 Most goals can be accomplished in various ways using Vavr. Here we reduced the whole method body to fluent function calls on a List instance. We could even remove the whole method and directly use our List to obtain the computation result.
 
+Vavr はたいていの問題を記述するための方法を提供します。
+メソッド全体を List オブジェクトに対する fluent な関数の呼び出しで実装できます。
+メソッド自体を無くして List から直接敵に計算結果を取得することもできるのです。
+
 [source,java]
 ----
 List.of(words).mkString(", ");
@@ -357,17 +567,33 @@ List.of(words).mkString(", ");
 
 In a real world application we are now able to drastically reduce the number of lines of code and hence lower the risk of bugs.
 
-==== Set and Map
+実際のアプリケーション実装に必要とされる何行ものコードを節約できるので、バグの混入リスクも低下します。
+
+[reftext="Set and Map"]
+==== セット（Set）とマップ（Map）
 
 Sequences are great. But to be complete, a collection library also needs different types of Sets and Maps.
+
+シーケンスは有能ですが何でも解決できるわけではありません。
+コレクションライブラリにはセット（Set）とマップ（Map）が必要です。
 
 image::images/collections-set-map.png?w=660[Set and Map]
 
 We described how to model sorted Sets with binary tree structures. A sorted Map is nothing else than a sorted Set containing key-value pairs and having an ordering for the keys.
 
+ここまでに、二分木に基づく順序付きセットについて説明しました。
+順序付きマップとは、キーと値の対を要素とし、キーの順番に整列された順序付きセットそのものです。
+
 The HashMap implementation is backed by a http://lampwww.epfl.ch/papers/idealhashtrees.pdf[Hash Array Mapped Trie (HAMT)]. Accordingly the HashSet is backed by a HAMT containing key-key pairs.
 
+HashMap は http://lampwww.epfl.ch/papers/idealhashtrees.pdf[Hash Array Mapped Trie (HAMT)] に基づいて実装されています。
+同様に、HashSet もキーと値の対を要素とする HAMT で実装されています。
+
 Our Map does __not__ have a special Entry type to represent key-value pairs. Instead we use Tuple2 which is already part of Vavr. The fields of a Tuple are enumerated.
+
+Vavr の提供するマップには、キーと値の対を表現する特別な型が __ありません__ 。
+Tuple2 という型を代用します。
+Tuple のフィールドは列挙可能です。
 
 [source,java]
 ----
@@ -380,6 +606,9 @@ String value = entry._2;
 
 Maps and Tuples are used throughout Vavr. Tuples are inevitable to handle multi-valued return types in a general way.
 
+Vavr ではあらゆる場面でマップとタプル（Tuple）を使用します。
+多値を返り値にするにはタプルを使うのが一般的な方法です。
+
 [source,java]
 ----
 // = HashMap((0, List(2, 4)), (1, List(1, 3)))
@@ -390,3 +619,7 @@ List.of('a', 'b', 'c').zipWithIndex();
 ----
 
 At Vavr, we explore and test our library by implementing the https://projecteuler.net/archives[99 Euler Problems]. It is a great proof of concept. Please don’t hesitate to send pull requests.
+
+Vavr ではライブラリの検査やテストのために https://projecteuler.net/archives[99 Euler Problems] を実装しています。
+概念実証として比肩するものはないでしょう。
+恐れることなく、変更の提案（プルリクエスト）を作成してください。

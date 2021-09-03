@@ -1,57 +1,93 @@
-== Usage Guide
+[reftext="Usage Guide"]
+== 利用ガイド
 
 Vavr comes along with well-designed representations of some of the most basic types which apparently are missing or rudimentary in Java: `Tuple`, `Value` and `λ`.
 In Vavr, everything is built upon these three basic building blocks:
 
+Vavr は、これまでの Java に不足していた基本的な型の `Tuple` および `Value` そして `λ` に関する適切な表現に基づいています。
+あらゆる要素がこれらの基本的な構成要素で成り立っているといっても過言ではありません。
+
 image::images/vavr-overview.png[Vavr Overview]
 
-=== Tuples
+[reftext="Tuples"]
+=== タプル
 
 Java is missing a general notion of tuples. A Tuple combines a fixed number of elements together so that they can be passed around as a whole. Unlike an array or list, a tuple can hold objects with different types, but they are also immutable.
 Tuples are of type Tuple1, Tuple2, Tuple3 and so on. There currently is an upper limit of 8 elements. To access elements of a tuple `t`, you can use method `t._1` to access the first element, `t._2` to access the second, and so on.
 
-==== Create a tuple
+Java にはタプルを記述する方法がありません。
+タプルとは、有限数の要素を束ねて1つの要素として扱えるようにするものです。
+配列やリストと違って異なる型のオブジェクトを持つことができますが、それぞれの要素は不変でなければなりません。
+Vavr は `Tuple1` や `Tuple2` や `Tuple3` など要素数に対応する型を提供します。
+今のところ `Tuple8` が最大です。
+タプル `t` について、`t._1` で先頭の要素へ、`t._2` で2番目の要素へアクセスできます。
+
+[reftext="Create a tuple"]
+==== タプルの作成
+
 Here is an example of how to create a tuple holding a String and an Integer:
+
+String と Integer を持つタプルは次のように作成します。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/TupleDemo.java[tags=createTuple]
 ----
-<1> A tuple is created via the static factory method `Tuple.of()`
-<2> Get the 1st element of this tuple.
-<3> Get the 2nd element of this tuple.
 
-==== Map a tuple component-wise
+// <1> A tuple is created via the static factory method `Tuple.of()`
+// <2> Get the 1st element of this tuple.
+// <3> Get the 2nd element of this tuple.
+<1> 静的ファクトリメソッド `Tuple.of()` でタプルを作成します
+<2> 先頭要素にアクセスします
+<3> 2番目の要素にアクセスします
+
+[reftext="Map a tuple component-wise"]
+==== タプルの要素ごとにマップする
 
 The component-wise map evaluates a function per element in the tuple, returning another tuple.
+
+タプルの要素ごとに関数を評価して、新しいタプルを返すことができます。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/TupleDemo.java[tags=bimapTuple]
 ----
 
-==== Map a tuple using one mapper
+[reftext="Map a tuple using one mapper"]
+==== タプル全体をマップする
 
 It is also possible to map a tuple using one mapping function.
+
+タプル全体を対象に関数を評価できます。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/TupleDemo.java[tags=mapTuple]
 ----
 
-==== Transform a tuple
+[reftext="Transform a tuple"]
+==== タプルを変換する
 
 Transform creates a new type based on the tuple's contents.
+
+Transform はタプルの内容に基づく新しいオブジェクトを生成します。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/TupleDemo.java[tags=transformTuple]
 ----
 
-=== Functions
+[reftext="Functions"]
+=== 関数
 
 Functional programming is all about values and transformation of values using functions. Java 8 just provides a `Function` which accepts one parameter and a `BiFunction` which accepts two parameters. Vavr provides functions up to a limit of 8 parameters. The functional interfaces are of called `Function0, Function1, Function2, Function3` and so on. If you need a function which throws a checked exception you can use `CheckedFunction1, CheckedFunction2` and so on.
 The following lambda expression creates a function to sum two integers:
+
+関数型プログラミングでは、値と、関数による値の変換で全てを表現します。
+Java 8 では、1つの引数を受け取る `Function` や、2つの引数を受け取る `BiFunction` が導入されました。
+Vavr では最大8つの引数に対応した関数型インターフェイスの `Function0` や `Function1` （以下省略）を提供します。
+関数がチェック例外を送出しなければならないときのために `CheckedFunction1` や `CheckedFunction2` （以下省略）を提供します。
+次のコード例は、2つの整数を加算する関数を生成するラムダ式です。
 
 [source,java,indent=0]
 ----
@@ -60,12 +96,16 @@ include::../../test/java/io/vavr/FunctionsDemo.java[tags=createFunctionWithLambd
 
 This is a shorthand for the following anonymous class definition:
 
+これは、次のような匿名クラスの定義の短縮形にすぎません。
+
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=createFunctionWithAnonymousClass]
 ----
 
 You can also use the static factory method `Function3.of(...)` to a create a function from any method reference.
+
+静的ファクトリメソッドの `Function3.of(...)` を使うと、任意のメソッド参照から関数を作成できます。
 
 [source,java,indent=0]
 ----
@@ -79,9 +119,24 @@ In fact Vavr functional interfaces are Java 8 functional interfaces on steroids.
 * Currying
 * Memoization
 
-==== Composition
-You can compose functions. In mathematics, function composition is the application of one function to the result of another to produce a third function. For instance, the functions f : X → Y and g : Y → Z can be composed to yield a function `h: g(f(x))` which maps X -> Z.
+Vavr の関数型インターフェイスは Java 8 の関数型インターフェイスを強化します。
+具体的には次のような機能を拡張します。
+
+* 合成
+* 引き上げ
+* カリー化
+* メモ化
+
+[reftext="Composition"]
+==== 合成
+
+You can compose functions. In mathematics, function composition is the application of one function to the result of another to produce a third function. For instance, the functions f→: X → Y and g→: Y → Z can be composed to yield a function `h: g(f(x))` which maps X -> Z.
 You can use either `andThen`:
+
+関数は合成できます。
+数学的には、ある関数の結果を他の関数に適用する関数を生成するのが関数合成です。
+例えば、関数 `f→:X→Y` と関数 `g→:Y→Z` を合成した関数は `h: g(f(x))` となり、この関数は `X' を `Z` へ写像することになります。
+`andThen` メソッドで同じことができます。
 
 [source,java,indent=0]
 ----
@@ -90,15 +145,28 @@ include::../../test/java/io/vavr/FunctionsDemo.java[tags=composeFunctions1]
 
 or `compose`:
 
+あるいは `compose` でも同様です。
+
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=composeFunctions2]
 ----
 
-==== Lifting
+[reftext="Lifting"]
+==== 引き上げ
+
 You can lift a partial function into a total function that returns an `Option` result. The term _partial function_ comes from mathematics. A partial function from X to Y is a function f: X′ → Y, for some subset X′ of X. It generalizes the concept of a function f: X → Y by not forcing f to map every element of X to an element of Y. That means a partial function works properly only for some input values. If the function is called with a disallowed input value, it will typically throw an exception.
 
+不完全関数を、`Option` を返す完全関数へ引き上げることができます。
+_不完全関数_ という単語は数学からの借用です。
+X を Y に写像する不完全関数とは、X の部分集合 X` を写像する関数 ``f:X`→Y`` のことです。
+これは、関数 `f:X→Y` が、Xの全ての要素をYに写像できない場合も含むよう一般化する考え方です。
+つまり、不完全関数は一部の入力に対してのみ正常に機能することになります。
+たいていの場合、不適切な値で呼び出された不完全関数は例外を送出します。
+
 The following method `divide` is a partial function that only accepts non-zero divisors.
+
+次のコード例の `divide` メソッドは、0以外の値だけを許容する不完全関数です。
 
 [source,java,indent=0]
 ----
@@ -107,83 +175,144 @@ include::../../test/java/io/vavr/FunctionsDemo.java[tags=partialDivideFunction]
 
 We use `lift` to turn `divide` into a total function that is defined for all inputs.
 
+`divide` メソッドを `lift` すると、全ての入力を許容する完全関数へ引き上げられます。
+
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=liftedDivideFunction]
 ----
 
-<1> A lifted function returns `None` instead of throwing an exception, if the function is invoked with disallowed input values.
-<2> A lifted function returns `Some`, if the function is invoked with allowed input values.
+// <1> A lifted function returns `None` instead of throwing an exception, if the function is invoked with disallowed input values.
+// <2> A lifted function returns `Some`, if the function is invoked with allowed input values.
+<1> 引き上げた関数は、許容しない値を渡すと例外を送出する代わりに `None` を返します。
+<2> 引き上げた関数は、許容する値を渡すと `Some` を返します。
 
 The following method `sum` is a partial function that only accepts positive input values.
+
+次のコード例の `sum` メソッドは、正の値だけを許容する不完全関数です。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=partialFunctionExample]
 ----
-<1> The function `sum` throws an `IllegalArgumentException` for negative input values.
+// <1> The function `sum` throws an `IllegalArgumentException` for negative input values.
+<1> 負の値を渡すと `sum` は `IllegalArgumentException` を送出します。
 
 We may lift the `sum` method by providing the methods reference.
+
+`sum` メソッドを `lift` するには、メソッド参照を渡すこともできます。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=liftMethodReference]
 ----
-<1> The lifted function catches the `IllegalArgumentException` and maps it to `None`.
 
-==== Partial application
+// <1> The lifted function catches the `IllegalArgumentException` and maps it to `None`.
+<1> 引き上げた関数は `IllegalArgumentException` を検出して `None` へ変換します。
+
+[reftext="Partial application"]
+==== 部分適用
+
 Partial application allows you to derive a new function from an existing one by fixing some values.  You can fix one or more parameters, and the number of fixed parameters defines the arity of the new function such that `new arity = (original arity - fixed parameters)`.  The parameters are bound from left to right.
+
+関数の引数の一部を固定した新しい関数を生成するのが部分適用です。
+固定する引数は1つでも2つでも構いません（任意です）。
+固定した引数の数が、新しく生成した関数のアリティになります（`新しい関数のアリティ = 元の関数のアリティ - 固定した引数の数`）。
+引数は左から右に向かって固定できます。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=partialApplicationFunction]
 ----
-<1> The first parameter `a` is fixed to the value 2.
+
+// <1> The first parameter `a` is fixed to the value 2.
+<1> 最初の引数 `a` を値 2 で固定します。
 
 This can be demonstrated by fixing the first three parameters of a `Function5`, resulting in a `Function2`.
+
+具体的には、`Function5` の最初の3つの引数を固定すると `Function2` になります。
+
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=partialApplicationFunctionArity5]
 ----
-<1> The `a`, `b` and `c` parameters are fixed to the values 2, 3 and 1 respectively.
+
+// <1> The `a`, `b` and `c` parameters are fixed to the values 2, 3 and 1 respectively.
+<1> 引数 `a` `b` `c` を、それぞれ値 2 3 1 で固定します。
 
 Partial application differs from <<Currying>>, as will be explored in the relevant section.
 
-==== Currying
+部分適用と<<Currying>>は別の概念です。カリー化について詳しくは後で説明します。
+
+[reftext="Currying"]
+==== カリー化
+
 Currying is a technique to partially apply a function by fixing a value for one of the parameters, resulting in a `Function1` function that returns a `Function1`.
 
+カリー化とは、関数にいずれかの引数を部分適用するテクニックのことで、`Function1` をカリー化すると `Function1` を返すことになります。
+
 When a `Function2` is _curried_, the result is indistinguishable from the _partial application_ of a `Function2` because both result in a 1-arity function.
+
+`Function2` を __カリー化__ した結果は、__部分適用__ の考え方では区別できません。
+なぜなら、`Function2` には引数が2つあるため、どちらの引数を固定しても、アリティが1の関数になるからです。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=curryingFunction]
 ----
-<1> The first parameter `a` is fixed to the value 2.
+
+// <1> The first parameter `a` is fixed to the value 2.
+<1> 最初の引数 `a` を値 2 で固定します。
 
 You might notice that, apart from the use of `.curried()`, this code is identical to the 2-arity given example in <<Partial application>>.  With higher-arity functions, the difference becomes clear.
+
+`.curried()` を使っていること以外は <<Partial application>> のコード例とまったく変わらないことに気付いたでしょうか。
+アリティの高い関数なら違いが明確になります。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=curryingFunctionArity3]
 ----
-<1> Note the presence of additional functions in the parameters.
-<2> Further calls to `apply` returns another `Function1`, apart from the final call.
 
-==== Memoization
+// <1> Note the presence of additional functions in the parameters.
+// <2> Further calls to `apply` returns another `Function1`, apart from the final call.
+<1> 新しい関数にはまだ2つ引数が必要です。
+<2> 1つ目の `apply` は新たな `Function1` を生成します。2つ目の `apply` は結果を返します。
+
+[reftext="Memoization"]
+==== メモ化
+
 Memoization is a form of caching. A memoized function executes only once and then returns the result from a cache.
 The following example calculates a random number on the first invocation and returns the cached number on the second invocation.
+
+メモ化とはキャッシュの一種です。
+メモ化した関数は最初の呼び出しだけ実際に計算し、それ以降の呼び出しではキャッシュした結果を返します。
+次のコード例は、最初の呼び出しでランダムな数値を計算して、それ以降の呼び出しではキャッシュした結果を返しています。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/FunctionsDemo.java[tags=memoizedFunction]
 ----
 
-=== Values
+[reftext="Values"]
+=== 値
+
 In a functional setting we see a value as a kind of https://en.wikipedia.org/wiki/Normal_form_(abstract_rewriting)[normal form], an expression which cannot be further evaluated. In Java we express this by making the state of an object final and call it https://en.wikipedia.org/wiki/Immutable_object[immutable].
 Vavr's functional Value abstracts over immutable objects. Efficient write operations are added by sharing immutable memory between instances. What we get is thread-safety for free!
+関数型プログラミングでは、値を https://en.wikipedia.org/wiki/Normal_form_(abstract_rewriting)[正規形] として扱います。
+つまり、1度しか評価できない式と同じ扱いなのです。
+Java では final にしたオブジェクトに相当し、これを https://en.wikipedia.org/wiki/Immutable_object[不変オブジェクト] と呼びます。
+Vavr の抽象としての値は、不変オブジェクトより多くの機能を提供します。
+インスタンス間で不変オブジェクトを共有する、より効率的な書き込み操作ができるようになっているのです。
+これは、スレッド安全性を獲得するのに役立ちました。
 
+[reftext="Option"]
 ==== Option
+
 Option is a monadic container type which represents an optional value. Instances of Option are either an instance of `Some` or the `None`.
+
+Optionはモナドのコンテナ型で、任意の値の存在を表現します。
+Optionのインスタンスは、`Some` のインスタンスか `None` のいずれかになります。
 
 [source,java,indent=0]
 ----
@@ -193,50 +322,91 @@ Option<T> option = Option.of(...);
 
 If you're coming to Vavr after using Java's `Optional` class, there is a crucial difference.  In `Optional`, a call to `.map` that results in a null will result in an empty `Optional`.  In Vavr, it would result in a `Some(null)` that can then lead to a `NullPointerException`.
 
+Java の `Optional` を知ってから Vavr を使い始めたとしたら、決定的な違いがあることに気付いているでしょう。
+空の `Optional` について `.map` で値を取り出すと、null が返ってくるのです。
+Vavr では `Some(null)` から値を取り出そうとすると `NullPointerException` を送出します。
+
 Using `Optional`, this scenario is valid.
+
+次のコード例は `Optional` なら正しい使い方です。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/OptionDemo.java[tags=javaOptionalWithMappedNull]
 ----
-<1> The option is `Some("foo")`
-<2> The resulting option becomes empty here
+
+// <1> The option is `Some("foo")`
+// <2> The resulting option becomes empty here
+<1> Optionでは `Some("foo")` と同じ意味になります。
+<2> この行のせいで、最終的なOptionは空になります。
 
 Using Vavr's `Option`, the same scenario will result in a `NullPointerException`.
+
+Vavr の `Option` で同じことをすると `NullPointerException` を送出します。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/OptionDemo.java[tags=vavrOptionWithMappedNull]
 ----
-<1> The option is `Some("foo")`
-<2> The resulting option is `Some(null)`
-<3> The call to `s.toUpperCase()` is invoked on a `null`
+
+// <1> The option is `Some("foo")`
+// <2> The resulting option is `Some(null)`
+// <3> The call to `s.toUpperCase()` is invoked on a `null`
+<1> Optionは `Some("foo")` になります。
+<2> Optionは `Some(null)` になります。
+<3> `null` に対して `s.toUpperCase()` を呼び出したことになります。
 
 This seems like Vavr's implementation is broken, but in fact it's not - rather, it adheres to the requirement of a monad to maintain computational context when calling `.map`.  In terms of an `Option`, this means that calling `.map` on a `Some` will result in a `Some`, and calling `.map` on a `None` will result in a `None`.  In the Java `Optional` example above, that context changed from a `Some` to a `None`.
 
+Vavr の実装が間違っていると思うかもしれませんが、そんなことはありません。
+それどころか、モナドの要求する `.map` を呼ぶときの計算の文脈を守っているのです。
+`Option` の定義では、`Some` について `.map` を呼び出した結果は `Some` になりますし、`None` について `.map` を呼び出した結果は `None` になるからです。
+Java の `Optional` では、`Some` から `None` へ文脈が変化してしまっているのです。
+
 This may seem to make `Option` useless, but it actually forces you to pay attention to possible occurrences of `null` and deal with them accordingly instead of unknowingly accepting them.  The correct way to deal with occurrences of `null` is to use `flatMap`.
+
+`Option` が使いにくいと感じるかもしれませんが、この制限は `null` の発生する可能性について注意を促すことになるし、未知の値を無視せず、適切に扱えるようにしてくれます。
+`null` の発生する場合を考慮する正しい方法は `flatMap` を使う方法です。
+
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/OptionDemo.java[tags=flatMapNullParameter]
 ----
-<1> The option is `Some("foo")`
-<2> The resulting option is `Some(null)`
-<3> `s`, which is `null`, becomes `None`
+
+// <1> The option is `Some("foo")`
+// <2> The resulting option is `Some(null)`
+// <3> `s`, which is `null`, becomes `None`
+<1> Optionは `Some("foo")` になります。
+<2> Optionは `Some(null)` になります。
+<3> `s` は `null` なので `None` になります。
 
 Alternatively, move the `.flatMap` to be co-located with the the possibly `null` value.
+
+また、`null` の発生しそうな部分に `.flatMap` を移動してもいいでしょう。
 
 [source,java,indent=0]
 ----
 include::../../test/java/io/vavr/OptionDemo.java[tags=mapOptionParameter]
 ----
-<1> The option is `Some("foo")`
-<2> The resulting option is `None`
+
+// <1> The option is `Some("foo")`
+// <2> The resulting option is `None`
+<1> Optionは `Some("foo")` になります。
+<2> Optionは `None` になります。
 
 This is explored in more detail on the http://blog.vavr.io/the-agonizing-death-of-an-astronaut/[Vavr blog].
 
+この内容について、 http://blog.vavr.io/the-agonizing-death-of-an-astronaut/[Vavr のブログ] でより詳しく説明しています。
+
+[reftext="Try"]
 ==== Try
+
 Try is a monadic container type which represents a computation that may either result in an exception, or return a successfully computed value. It's similar to, but semantically different from `Either`. Instances of Try, are either an instance of `Success` or `Failure`.
+
+Try はモナドのコンテナ型で、例外を送出するか、計算した値を返す計算を表現します。
+一見すると `Either` に似ていますが意味論的には異なります。
+Try のインスタンスは、`Success` か `Failure` のいずれかのインスタンスになります。
 
 [source,java,indent=0]
 ----
@@ -258,8 +428,13 @@ A result = Try.of(this::bunchOfWork)
     .getOrElse(other);
 ----
 
+[reftext="Lazy"]
 ==== Lazy
+
 Lazy is a monadic container type which represents a lazy evaluated value. Compared to a Supplier, Lazy is memoizing, i.e. it evaluates only once and therefore is referentially transparent.
+
+Lazy はモナドのコンテナ型で、遅延評価する値を表現します。
+Java の `Supplier` と違って、Lazy はメモ化により最初だけ評価して、それ以降は透過的に同じ値を参照するようになります。
 
 [source,java,indent=0]
 ----
@@ -268,15 +443,29 @@ include::../../test/java/io/vavr/LazyDemo.java[tags=createLazy]
 
 Since version 2.0.0 you may also create a real lazy value (works only with interfaces):
 
+Vavr 2.0.0 からは、インターフェイスと組み合わせた場合だけ、本物の遅延評価を作ることができるようになりました。
+
 [source,java,indent=0]
 ----
 CharSequence chars = Lazy.val(() -> "Yay!", CharSequence.class);
 ----
 
+[reftext="Either"]
 ==== Either
+
 Either represents a value of two possible types. An Either is either a Left or a Right. If the given Either is a Right and projected to a Left, the Left operations have no effect on the Right value. If the given Either is a Left and projected to a Right, the Right operations have no effect on the Left value. If a Left is projected to a Left or a Right is projected to a Right, the operations have an effect.
 
+Either は2種類の型として解釈可能な値を表現します。
+ある Either は Left と Right のいずれかになりうるということです。
+ある Eigher に Left へ射影した Right の値を指定した場合、Right としての値に Left の操作を適用しても効果はありません。
+ある Eigher に Right へ射影した Left の値を指定した場合、Left としての値に Right の操作を適用しても効果はありません。
+Left には Left の値を、Right には Right の値を射影した場合のみ、それぞれの操作を適用した場合の効果が発生します。
+
 Example: A compute() function, which results either in an Integer value (in the case of success) or in an error message of type String (in the case of failure). By convention the success case is Right and the failure is Left.
+
+例えば、正常時は Integer を、それ以外ではエラーメッセージ（String）を返す `compute()` という関数があるとします。
+慣習的に、正常時の返り値の型を Right、異常時の返り値の型を Left とすることになっています。
+
 
 [source,java,indent=0]
 ----
@@ -286,16 +475,37 @@ Either<String,Integer> value = compute().right().map(i -> i * 2).toEither();
 If the result of compute() is Right(1), the value is Right(2).
 If the result of compute() is Left("error"), the value is Left("error").
 
+`compute()` の結果が `Right(1)` なら `value` の値は `Right(2)` になります。
+`compute()` の結果が `Left("error")` なら `value` の値は `Left("error")` になります。
+
+[reftext="Future"]
 ==== Future
+
 A Future is a computation result that becomes available at some point. All operations provided are non-blocking. The underlying ExecutorService is used to execute asynchronous handlers, e.g. via onComplete(...).
 
+Future はある程度後になってから参照できるようになる計算結果です。
+Future に対する全ての操作は実行フローを中断しません。
+`onComplete(...)` 等の非同期ハンドラを実行するため ExecutorService が使われています。
+
 A Future has two states: pending and completed.
+
+Future には保留（pending）と完了（completed）という2種類の状態があります。
 
 *Pending:* The computation is ongoing. Only a pending future may be completed or cancelled.
 
 *Completed:* The computation finished successfully with a result, failed with an exception or was cancelled.
 
+*保留（Pending）* 計算を実行中です。保留の Future は完了（completed）あるいは中断（cancelled）のいずれかになります。
+
+*完了（Completed）* 計算は完了しており、正常時はその結果を、異常時は例外を保持しています。中断（cancelled）している場合もあります。
+
 Callbacks may be registered on a Future at each point of time. These actions are performed as soon as the Future is completed. An action which is registered on a completed Future is immediately performed. The action may run on a separate Thread, depending on the underlying ExecutorService. Actions which are registered on a cancelled Future are performed with the failed result.
+
+Future には所定の時点に対応するコールバック操作を登録できます。
+コールバックに登録した操作は Future が完了した時点ですぐに実行されます。
+すでに完了した Future のコールバックに登録した操作はすぐに実行されます。
+ExecutorService によっては、コールバックに登録した操作を別のスレッドで実行します。
+中断した Future のコールバックに登録した操作は、失敗時の結果と共に実行されます。
 
 [source,java,indent=0]
 ----
@@ -303,10 +513,19 @@ Callbacks may be registered on a Future at each point of time. These actions are
 Future<T> future = Future.of(...);
 ----
 
+[reftext="Validation"]
 ==== Validation
+
 The Validation control is an _applicative functor_ and facilitates accumulating errors. When trying to compose Monads, the combination process will short circuit at the first encountered error. But 'Validation' will continue processing the combining functions, accumulating all errors. This is especially useful when doing validation of multiple fields, say a web form, and you want to know all errors encountered, instead of one at a time.
 
+Validation は _アプリケイティブファンクタ_ およびエラーを蓄積する仕組みとして使われます。
+モナドを合成するとき、合成プロセスは最初にエラーを検出した時点で短絡させます。
+ですが、Validation は合成した全ての関数の実行を継続し、全てのエラーを蓄積します。
+Web フォームのように複数のフィールドを検証するときや、全てのエラーを同時に確認したいときに役立つ機能です。
+
 Example: We get the fields 'name' and 'age' from a web form and want to create either a valid Person instance, or return the list of validation errors.
+
+Web フォームの 'name' フィールドと 'age' フィールドについて、正常な Person インスタンスを作成するか、検証エラーのリストを返したいときは次のようの記述します。
 
 [source,java,indent=0]
 ----
@@ -315,7 +534,12 @@ include::../../test/java/io/vavr/ValidationDemo.java[tags=validatePerson]
 
 A valid value is contained in a `Validation.Valid` instance, a list of validation errors is contained in a `Validation.Invalid` instance.
 
+`Validation.Valid` のインスタンスには正しい値を格納します。
+`Validation.Invalid` のインスタンスには検証エラーのリストを格納します。
+
 The following validator is used to combine different validation results to one `Validation` instance.
+
+次のコード例では複数の異なる `Validation` インスタンスを合成するバリデーターを定義しています。
 
 ----
 include::../../test/java/io/vavr/ValidationDemo.java[tags=personValidator]
@@ -323,17 +547,28 @@ include::../../test/java/io/vavr/ValidationDemo.java[tags=personValidator]
 
 If the validation succeeds, i.e. the input data is valid, then an instance of `Person` is created of the given fields `name` and `age`.
 
+入力値が正しいとき、つまり検証が成功したら、`name` と `age` に値を設定した `Person` のインスタンスを生成します。
+
 ----
 include::../../test/java/io/vavr/ValidationDemo.java[tags=person]
 ----
 
-=== Collections
+[reftext="Collections"]
+=== コレクション
 
 Much effort has been put into designing an all-new collection library for Java which meets the requirements of functional programming, namely immutability.
 
+関数型プログラミングの要求を満たす、つまり、不変性を満たすように、Java の新しいコレクションライブラリを設計するのはとても大変でした。
+
 Java's Stream lifts a computation to a different layer and links to a specific collection in another explicit step. With Vavr we don't need all this additional boilerplate.
 
+Java の Stream は計算処理を別のレイヤーへ引き上げたり、コレクションと別の処理を結びつけたりするものでした。
+Vavr では新たに定型的なコードを追加する必要がありません。
+
 The new collections are based on http://docs.oracle.com/javase/8/docs/api/java/lang/Iterable.html[java.lang.Iterable], so they leverage the sugared iteration style.
+
+Vavr の提供するコレクションライブラリは http://docs.oracle.com/javase/8/docs/api/java/lang/Iterable.html[java.lang.Iterable] に基づいています。
+ですので、イテレーションに関する糖衣構文を利用できます。
 
 [source,java]
 ----
@@ -345,10 +580,20 @@ for (double random : Stream.continually(Math::random).take(1000)) {
 
 `TraversableOnce` has a huge amount of useful functions to operate on the collection. Its API is similar to http://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html[java.util.stream.Stream] but more mature.
 
-==== List
+`TraversableOnce` はコレクションの操作に役立つさまざまな関数を持っています。
+http://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html[java.util.stream.Stream] とよく似た API を提供していますが、より洗練されています。
+
+[reftext="List"]
+==== リスト
 
 Vavr's `List` is an immutable linked list. Mutations create new instances. Most operations are performed in linear time. Consequent operations are executed one by one.
 
+Vavr の `List` は不変連結リストです。
+変更操作は新しいインスタンスを作成します。
+ほとんどの操作は線形時間で完了します。
+結果の生じる操作は1つずつ実行します。
+
+[reftext="Java 8"]
 ===== Java 8
 
 [source,java]
@@ -361,6 +606,7 @@ Arrays.asList(1, 2, 3).stream().reduce((i, j) -> i + j);
 IntStream.of(1, 2, 3).sum();
 ----
 
+[reftext="Vavr"]
 ===== Vavr
 
 [source,java]
@@ -369,11 +615,18 @@ IntStream.of(1, 2, 3).sum();
 List.of(1, 2, 3).sum();
 ----
 
-==== Stream
+[reftext="Stream"]
+==== ストリーム
 
 The `io.vavr.collection.Stream` implementation is a lazy linked list. Values are computed only when needed. Because of its laziness, most operations are performed in constant time. Operations are intermediate in general and executed in a single pass.
 
+`io.vavr.collection.Stream` は遅延連結リストとして実装されています。
+必要になったときだけ値を計算します。
+遅延評価できるため、ほとんどの操作は定数時間で完了します。
+ほとんどの操作には中間処理が介入するし、単一の経路で実行します。
+
 The stunning thing about streams is that we can use them to represent sequences that are (theoretically) infinitely long.
+ストリームに驚かされるのは、（理論的に）無限長のシーケンスを表現できることです。
 
 [source,java]
 ----
@@ -381,49 +634,55 @@ The stunning thing about streams is that we can use them to represent sequences 
 Stream.from(1).filter(i -> i % 2 == 0);
 ----
 
-==== Performance Characteristics
+[reftext="Performance Characteristics"]
+==== 性能特性
 
-.Time Complexity of Sequential Operations
+.順次処理の時間計算量（Time Complexity of Sequential Operations）
 [width="100%",frame="topbot",options="header"]
 |====================================================================================================
 |               | head()     | tail()     | get(int)    | update(int, T) | prepend(T)  | append(T)
-| Array         | const      | linear     | const       | const          | linear      | linear
-| CharSeq       | const      | linear     | const       | linear         | linear      | linear
-| Iterator      | const      | const      | &mdash;     | &mdash;        | &mdash;     | &mdash;
-| List          | const      | const      | linear      | linear         | const       | linear
-| Queue         | const      | const^a^   | linear      | linear         | const       | const
-| PriorityQueue | log        | log        | &mdash;     | &mdash;        | log         | log
-| Stream        | const      | const      | linear      | linear         | const^lazy^ | const^lazy^
-| Vector        | const^eff^ | const^eff^ | const ^eff^ | const ^eff^    | const ^eff^ | const ^eff^
+| Array         | 定数      | 線形     | 定数       | 定数          | 線形      | 線形
+| CharSeq       | 定数      | 線形     | 定数       | 線形         | 線形      | 線形
+| Iterator      | 定数      | 定数      | &mdash;     | &mdash;        | &mdash;     | &mdash;
+| List          | 定数      | 定数      | 線形      | 線形         | 定数       | 線形
+| Queue         | 定数      | （償却あり）定数   | 線形      | 線形         | 定数       | 定数
+| PriorityQueue | 対数        | 対数        | &mdash;     | &mdash;        | 対数         | 対数
+| Stream        | 定数      | 定数      | 線形      | 線形         | （遅延評価）定数 | （遅延評価）定数
+| Vector        | （実質的に）定数 | （実質的に）定数 | （実質的に）定数 | （実質的に）定数    | （実質的に）定数 | （実質的に）定数
 |====================================================================================================
 
-.Time Complexity of Map/Set Operations
+.マップ、セット処理の時間計算量（Time Complexity of Map/Set Operations）
 [width="100%",frame="topbot",options="header"]
 |=================================================================
 |               | contains/Key | add/put    | remove     | min
-| HashMap       | const^eff^   | const^eff^ | const^eff^ | linear
-| HashSet       | const^eff^   | const^eff^ | const^eff^ | linear
-| LinkedHashMap | const^eff^   | linear     | linear     | linear
-| LinkedHashSet | const^eff^   | linear     | linear     | linear
-| Tree          | log          | log        | log        | log
-| TreeMap       | log          | log        | log        | log
-| TreeSet       | log          | log        | log        | log
+| HashMap       | （実質的に）定数   | （実質的に）定数 | （実質的に）定数 | 線形
+| HashSet       | （実質的に）定数   | （実質的に）定数 | （実質的に）定数 | 線形
+| LinkedHashMap | （実質的に）定数   | 線形     | 線形     | 線形
+| LinkedHashSet | （実質的に）定数   | 線形     | 線形     | 線形
+| Tree          | 対数          | 対数        | 対数        | 対数
+| TreeMap       | 対数          | 対数        | 対数        | 対数
+| TreeSet       | 対数          | 対数        | 対数        | 対数
 |=================================================================
 
-Legend:
+セルの値の意味は以下のとおり。
 
-* const &mdash; constant time
-* const^a^ &mdash; amortized constant time, few operations may take longer
-* const^eff^ &mdash; effectively constant time, depending on assumptions like distribution of hash keys
-* const^lazy^ &mdash; lazy constant time, the operation is deferred
-* log &mdash; logarithmic time
-* linear &mdash; linear time
+* 定数 &mdash; 定数時間
+* （償却あり）定数 &mdash; 一部の処理により多くの時間はかかるけど、大半は定数時間
+* （実質的に）定数 &mdash; ハッシュキーの分布に依存するけど実質的に定数時間
+* （遅延評価）定数 &mdash; 操作は遅延処理されるので定数時間
+* 対数 &mdash; 対数時間
+* 線形 &mdash; 線形時間
 
-=== Property Checking
+[reftext="Property Checking"]
+=== プロパティチェック
 
 Property checking (also known as http://en.wikipedia.org/wiki/Property_testing[property testing]) is a truly powerful way to test properties of our code in a functional way. It is based on generated random data, which is passed to a user defined check function. 
 
+プロパティチェック（ http://en.wikipedia.org/wiki/Property_testing[プロパティテスト] とも呼ばれている）は、関数型プログラミングにおける、自分で書いたソースコードの特徴を検証する強力は手法です。
+
 Vavr has property testing support in its `io.vavr:vavr-test` module, so make sure to include that in order to use it in your tests.
+
+Vavr の `io.vavr:vavr-test` モジュールはプロパティテストに対応しているので、テストに導入するのは簡単です。
 
 [source,java]
 ----
@@ -438,3 +697,5 @@ Property.def("square(int) >= 0")
 ----
 
 Generators of complex data structures are composed of simple generators.
+
+単純なジェネレーターを合成すれば、複雑なデータ構造のジェネレーターを構築できます。
